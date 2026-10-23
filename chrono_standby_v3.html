@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>CHRONO — StandBy Clock</title>
+<style>
+:root{color-scheme:dark;--fg:#f5f5f7;--glass:rgba(27,29,37,.74);--line:rgba(255,255,255,.13);--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box} html,body{height:100%;width:100%;margin:0;overflow:hidden} body{background:#050505;color:var(--fg);overscroll-behavior:none} button,input{font:inherit}button{cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible{outline:2px solid #91bbff;outline-offset:4px}.app,.stage{position:fixed;inset:0;overflow:hidden}.scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;visibility:hidden;opacity:0;transform:scale(1.035);transition:opacity .65s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1),visibility .65s;isolation:isolate;overflow:hidden}.scene.active{opacity:1;visibility:visible;transform:scale(1)}.clock-number{white-space:nowrap;font-weight:650;line-height:.9;letter-spacing:-.09em;font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1;display:inline-flex;align-items:baseline;justify-content:center;user-select:none;-webkit-user-select:none}.clock-number .colon{letter-spacing:-.105em;transform:translateY(-.04em)}.clock-number .digit{display:inline-block}.tick-change{animation:digit-change .48s cubic-bezier(.2,.7,.2,1) both}@keyframes digit-change{0%{transform:translateY(12%);opacity:.25;filter:blur(5px)}100%{transform:translateY(0);opacity:1;filter:blur(0)}}.scene .sub-label{font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:clamp(11px,1vw,15px)}
+.extra-seconds{font-size:.43em;letter-spacing:-.03em;opacity:.78;padding-left:.06em}body.has-seconds .midnight-time{font-size:min(22vw,57vh)}body.has-seconds .aurora-time{font-size:min(24vw,54vh)}body.has-seconds .solar-time{font-size:min(20vw,46vh)}body.has-seconds .type-time{font-size:min(22vw,55vh)}
+/* MODE 1 — MIDNIGHT */
+.scene-midnight{background:#000}.midnight-shell{width:100%;height:100%;padding:4.5vw 5vw;display:flex;align-items:center;justify-content:center;gap:5vw}.midnight-time{flex:0 1 auto;min-width:0;color:#79a9f0;font-weight:720;font-size:min(27.3vw,70vh);letter-spacing:-.105em;filter:drop-shadow(0 0 45px rgba(79,125,222,.08));transform:scaleY(1.34)}.midnight-side{align-self:stretch;display:flex;flex-direction:column;justify-content:space-between;padding-block:11vh 10vh;min-width:clamp(115px,13.5vw,240px)}.midnight-day{font-weight:600;line-height:1;white-space:nowrap;font-size:clamp(33px,3.5vw,70px);letter-spacing:-.055em}.midnight-day [data-week-short]{color:#79a9f0}.midnight-full-date{margin-top:13px;opacity:.5;font-size:clamp(11px,1vw,16px);letter-spacing:.03em}.midnight-secondary{padding-bottom:2px}.midnight-side-icon{width:36px;height:36px;stroke:#79a9f0;opacity:.9;margin-bottom:9px}.midnight-other{font-size:clamp(28px,3vw,60px);font-weight:620;letter-spacing:-.035em;font-variant-numeric:tabular-nums}.midnight-zone{color:#79a9f0;font-size:clamp(11px,1.2vw,17px);letter-spacing:.18em;margin-top:8px;font-weight:650}
+/* MODE 2 — AURORA */
+.scene-aurora{background:linear-gradient(115deg,#654d6a 0%,#90699b 32%,#c78fcc 68%,#b991ca 100%)}.scene-aurora:before,.scene-aurora:after{content:"";position:absolute;inset:-25%;pointer-events:none;z-index:-1}.scene-aurora:before{background:radial-gradient(circle at 25% 85%,rgba(30,18,41,.46) 0,transparent 38%),radial-gradient(circle at 78% 13%,rgba(255,191,255,.37),transparent 36%);animation:aurora-move 18s ease-in-out infinite alternate}.scene-aurora:after{background:radial-gradient(circle at 52% 53%,rgba(255,210,250,.1),transparent 52%);animation:aurora-move2 24s ease-in-out infinite alternate}@keyframes aurora-move{to{transform:translate(9%,-7%) scale(1.13) rotate(5deg)}}@keyframes aurora-move2{to{transform:translate(-7%,10%) scale(1.15)}}.aurora-time{color:#ee9df8;font-size:min(30.9vw,68vh);font-weight:620;letter-spacing:-.095em;text-shadow:0 14px 70px rgba(73,37,78,.07)}.aurora-mark{position:absolute;top:5%;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;justify-content:center;width:78px;height:78px;border-radius:50%;background:rgba(52,34,58,.38);backdrop-filter:blur(9px);box-shadow:0 10px 32px rgba(52,34,58,.22)}.aurora-mark i{display:block;width:8px;height:27px;border-radius:10px;background:linear-gradient(180deg,#715675 0%,#f08e70 100%);transform-origin:center bottom;animation:eq-wave 2.4s ease-in-out infinite;will-change:transform,opacity}.aurora-mark i:nth-child(1){animation-delay:-.4s}.aurora-mark i:nth-child(2){height:16px;animation-delay:-1.1s}.aurora-mark i:nth-child(3){height:38px;animation-delay:-.8s}.aurora-mark i:nth-child(4){animation-delay:-1.6s}@keyframes eq-wave{0%,100%{transform:translateY(0) scaleY(.88);opacity:.78}20%{transform:translateY(-1px) scaleY(1.08);opacity:.92}42%{transform:translateY(-3px) scaleY(1.28);opacity:1}64%{transform:translateY(1px) scaleY(.94);opacity:.82}82%{transform:translateY(-2px) scaleY(1.15);opacity:.96}}.aurora-glow{position:absolute;top:4.8%;right:4.3%;width:92px;height:92px;border-radius:50%;border:11px solid rgba(255,215,255,.22);display:grid;place-items:center}.aurora-glow::after{content:"";position:absolute;inset:-11px;border-radius:50%;border:11px solid transparent;border-top-color:#65d06b;border-right-color:#65d06b;transform:rotate(20deg);animation:glow-turn 16s linear infinite}.aurora-glow svg{width:32px;fill:#65d06b}@keyframes glow-turn{to{transform:rotate(380deg)}}.aurora-bottom{position:absolute;bottom:8%;text-align:center;color:rgba(62,35,68,.75);letter-spacing:.28em;font-size:clamp(11px,1vw,14px);font-weight:700}
+/* MODE 3 — FLIP */
+.scene-flip{background:#171a20}.scene-flip:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 50% 60%,rgba(83,99,119,.16),transparent 58%)}.flip-content{display:flex;flex-direction:column;align-items:center;gap:3.6vh}.flip-row{display:flex;gap:clamp(8px,1.5vw,25px);align-items:center}.flip-card{width:min(35vw,37vh);height:min(48vw,43vh);display:grid;place-items:center;position:relative;border-radius:clamp(14px,2.6vw,36px);background:linear-gradient(#333942 0 49.8%,#272d36 50.2% 100%);box-shadow:0 30px 70px rgba(0,0,0,.38),inset 0 1px rgba(255,255,255,.13);overflow:hidden}.flip-card:before{content:"";position:absolute;top:50%;left:0;right:0;height:3px;background:#111318;box-shadow:0 1px rgba(255,255,255,.1);z-index:2}.flip-card:after{content:"";position:absolute;top:7%;left:0;right:0;height:30%;background:linear-gradient(transparent,rgba(255,255,255,.02));pointer-events:none}.flip-card .flip-text{color:#f0f0f1;font-size:min(19vw,28vh);font-weight:680;letter-spacing:-.08em;line-height:1;font-variant-numeric:tabular-nums;transform:translateX(-.025em)}.flip-card .flip-text.tick-change{animation:flip-enter .62s cubic-bezier(.19,.65,.2,1)}@keyframes flip-enter{0%{opacity:.5;transform:perspective(500px) rotateX(-26deg) translateY(-5%);filter:brightness(.65)}100%{opacity:1;transform:perspective(500px) rotateX(0) translateY(0);filter:brightness(1)}}.flip-date{color:#abb3c0;font-size:clamp(12px,1.45vw,19px);letter-spacing:.23em;text-transform:uppercase;font-weight:650;text-align:center}
+/* MODE 4 — SOLAR (Apple inspired floating glass) */
+.scene-solar{background:#0e1720}.scene-solar:before,.scene-solar:after{content:"";position:absolute;z-index:-1;pointer-events:none}.scene-solar:before{width:100vmax;height:100vmax;left:50%;top:55%;transform:translate(-50%,-50%);background:conic-gradient(from 65deg,#234b62,#176a80,#5b5ab7,#252a55,#234b62);filter:blur(65px);opacity:.7;animation:solar-rotate 32s linear infinite}.scene-solar:after{inset:0;background:radial-gradient(ellipse at 50% 38%,transparent,rgba(3,5,13,.5) 78%)}@keyframes solar-rotate{to{transform:translate(-50%,-50%) rotate(360deg)}}.solar-panel{position:relative;max-width:92vw;padding:clamp(26px,4.5vw,84px) clamp(30px,5vw,90px);border-radius:clamp(32px,5vw,85px);background:linear-gradient(132deg,rgba(255,255,255,.13),rgba(255,255,255,.045) 47%,rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.22);box-shadow:0 35px 115px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.2);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);text-align:center}.solar-top{display:flex;justify-content:space-between;gap:20px;color:rgba(235,248,255,.68);font-size:clamp(11px,1.1vw,15px);letter-spacing:.18em;font-weight:620;margin-bottom:3vh;text-transform:uppercase}.solar-time{font-size:min(23.5vw,48vh);color:#fff;font-weight:580;letter-spacing:-.085em;text-shadow:0 4px 24px rgba(255,255,255,.13)}.solar-bottom{display:flex;justify-content:space-between;gap:25px;align-items:center;margin-top:2vh;color:#cde8f2;font-size:clamp(12px,1.2vw,18px);font-weight:550}.solar-bar{height:5px;width:clamp(60px,10vw,140px);border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden}.solar-bar span{display:block;width:var(--sec-progress,0%);height:100%;border-radius:99px;background:#9bd4f0;transition:width .3s linear}
+/* MODE 5 — TYPE */
+.scene-type{background:#f2eee6;color:#171b16}.scene-type:before{content:"";position:absolute;inset:22px;border:1px solid rgba(30,39,35,.16);border-radius:2px;pointer-events:none}.type-wrap{width:min(1500px,85vw);display:flex;flex-direction:column;align-items:flex-start}.type-kicker{font-size:clamp(12px,1.3vw,20px);font-weight:700;letter-spacing:.27em;text-transform:uppercase;color:#878c81;margin-bottom:4vh}.type-time{font-size:min(28.8vw,62vh);letter-spacing:-.095em;font-weight:600;font-family:"Helvetica Neue",Arial,sans-serif}.type-rule{margin-top:3vh;width:100%;height:2px;background:#30352d}.type-caption{padding-top:20px;width:100%;display:flex;justify-content:space-between;align-items:center;color:#43483d;font-weight:650;font-size:clamp(12px,1.5vw,22px);letter-spacing:.04em}
+/* MODE 6 — ANALOG */
+.scene-orbit{background:radial-gradient(ellipse at 50% 45%,#18342e,#07100f 78%)}.orbit-wrap{display:flex;flex-direction:column;align-items:center;gap:clamp(14px,2.5vh,27px)}.analog-face{position:relative;width:min(68vh,69vw);height:min(68vh,69vw);border-radius:50%;border:clamp(8px,1.5vw,17px) solid #e5dfd0;box-shadow:0 35px 100px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.25),inset 0 0 0 5px rgba(7,15,11,.5);background:radial-gradient(circle,#e9e6dd 0,#e5e1d6 72%,#d3cfc1 100%)}.analog-tick{position:absolute;left:50%;top:50%;width:3px;height:11px;background:#697269;transform-origin:center center}.analog-tick.major{width:5px;height:22px;background:#273b35;border-radius:6px}.analog-hand{position:absolute;left:50%;top:50%;border-radius:30px;transform-origin:50% 100%;box-shadow:0 2px 5px rgba(0,0,0,.14)}.hand-hour{height:25%;width:clamp(7px,.85vw,14px);background:#1c332e;transform:translate(-50%,-100%) rotate(var(--hour-angle,0deg))}.hand-minute{height:36%;width:clamp(5px,.6vw,9px);background:#1c332e;transform:translate(-50%,-100%) rotate(var(--minute-angle,0deg))}.hand-second{height:41%;width:clamp(2px,.23vw,4px);background:#eb744e;transform:translate(-50%,-100%) rotate(var(--second-angle,0deg))}.analog-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:#eb744e;border:4px solid #22362e;z-index:3}.analog-face .mark-12,.analog-face .mark-3,.analog-face .mark-6,.analog-face .mark-9{position:absolute;font-weight:670;color:#304039;font-size:clamp(15px,2.5vh,30px)}.mark-12{top:8%;left:50%;transform:translateX(-50%)}.mark-3{right:8%;top:50%;transform:translateY(-50%)}.mark-6{bottom:7%;left:50%;transform:translateX(-50%)}.mark-9{left:8%;top:50%;transform:translateY(-50%)}.orbit-digital{display:flex;gap:17px;align-items:center;font-variant-numeric:tabular-nums;font-size:clamp(21px,3vw,39px);font-weight:650;letter-spacing:-.04em}.orbit-digital small{font-size:clamp(11px,1.2vw,15px);letter-spacing:.18em;color:#8eaf9d}
+/* OVERLAY CONTROLS */
+.chrome{position:absolute;inset:0;z-index:20;pointer-events:none}.topbar,.bottom-area{pointer-events:auto;position:absolute;left:0;right:0;display:flex;align-items:center;transition:opacity .4s,transform .4s;}.topbar{top:0;min-height:94px;padding:calc(20px + var(--safe-top)) clamp(18px,3vw,48px) 18px;justify-content:space-between;gap:14px;background:linear-gradient(rgba(0,0,0,.55),transparent)}.brand{font-size:14px;letter-spacing:.23em;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px}.brand-mark{width:10px;height:10px;border-radius:4px;background:#90acfa;box-shadow:0 0 16px #648dee}.topactions{display:flex;gap:9px;align-items:center}.ui-button{border:1px solid rgba(255,255,255,.18);background:rgba(25,28,35,.62);color:#fff;backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);border-radius:17px;min-height:43px;display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:10px 15px;transition:background .18s,transform .18s}.ui-button:hover{background:rgba(71,76,91,.88)}.ui-button:active{transform:scale(.96)}.ui-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ui-button.icon-only{width:45px;padding:0}.zone-button{font-weight:750;letter-spacing:.06em;font-size:14px}.zone-button span{font-size:11px;color:#a9b3c7;font-weight:500}.bottom-area{bottom:0;flex-direction:column;justify-content:center;gap:13px;padding:36px 16px calc(18px + var(--safe-bottom));background:linear-gradient(transparent,rgba(0,0,0,.69) 45%,rgba(0,0,0,.78))}.mode-tray{display:flex;gap:10px;justify-content:center;max-width:100%;overflow-x:auto;scrollbar-width:none;padding:5px 8px}.mode-tray::-webkit-scrollbar{display:none}.mode-btn{flex:0 0 auto;border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.09);color:rgba(255,255,255,.7);border-radius:18px;min-width:110px;padding:9px 10px 10px;text-align:center;transition:background .2s,border-color .2s,transform .2s}.mode-btn:hover{background:rgba(255,255,255,.17)}.mode-btn.selected{border-color:rgba(172,201,255,.85);background:rgba(137,168,232,.2);color:#fff;transform:translateY(-4px)}.mini-preview{display:block;border-radius:10px;height:45px;line-height:45px;font-size:22px;font-weight:670;letter-spacing:-.06em;margin-bottom:6px;overflow:hidden;font-variant-numeric:tabular-nums}.mini-1{background:#000;color:#79a9f0}.mini-2{background:linear-gradient(110deg,#735476,#cc9ad4);color:#f5a9f8}.mini-3{background:#303640;color:#f9f9f9;font-family:monospace}.mini-4{background:linear-gradient(130deg,#2d809b,#4b376f);color:white}.mini-5{background:#f0eee6;color:#1a1d17}.mini-6{background:#e5dfd0;color:#1b4935}.mode-name{display:block;font-size:12px;font-weight:640;white-space:nowrap}.tiny-hint{font-size:11px;letter-spacing:.05em;color:rgba(255,255,255,.67);text-align:center}.chrome.is-hidden .topbar{opacity:0;transform:translateY(-110%);pointer-events:none}.chrome.is-hidden .bottom-area{opacity:0;transform:translateY(100%);pointer-events:none}.peek{display:none;position:absolute;z-index:10;bottom:13px;left:50%;transform:translateX(-50%);width:48px;height:5px;border-radius:99px;background:rgba(255,255,255,.18);transition:opacity .3s;pointer-events:none}.chrome:not(.is-hidden)~.peek{opacity:0}.hidden-screen-msg{position:absolute;z-index:15;bottom:32px;left:50%;transform:translateX(-50%);background:rgba(15,18,25,.76);border:1px solid rgba(255,255,255,.12);border-radius:99px;padding:12px 20px;max-width:90vw;text-align:center;color:#e9ebef;font-size:12px;pointer-events:none;opacity:0;transition:opacity .5s}.hidden-screen-msg.show{opacity:1}
+.lang-button{font-size:12px;letter-spacing:.1em;font-weight:800;min-width:48px;padding:10px 12px;border-radius:14px}
+@media(max-width:650px){.lang-button{min-width:39px;padding:8px 9px;font-size:11px}.topactions{gap:5px}.setting-row{gap:12px}.setting-select{max-width:125px}.settings-card{padding:21px 18px}}
+/* SETTINGS */
+.settings-overlay{position:fixed;inset:0;z-index:45;background:rgba(0,0,0,.65);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;transition:opacity .22s,visibility .22s}.settings-overlay.open{opacity:1;visibility:visible}.settings-card{color:#eff1f6;width:min(470px,100%);max-height:min(90dvh,760px);overflow-y:auto;background:linear-gradient(150deg,#242934,#151820);border:1px solid rgba(255,255,255,.15);border-radius:30px;padding:28px;box-shadow:0 40px 140px #0008;transform:translateY(18px) scale(.98);transition:transform .3s}.settings-overlay.open .settings-card{transform:translateY(0) scale(1)}.settings-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.settings-header h2{font-size:24px;margin:0;letter-spacing:-.04em}.settings-subtitle{font-size:12px;color:#919aac;margin:4px 0 0}.settings-close{background:#373d48;border:0;color:#fff;border-radius:50%;width:34px;height:34px;font-size:21px}.setting-row{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 0;border-top:1px solid rgba(255,255,255,.11)}.setting-row strong{display:block;font-size:14px}.setting-row p{font-size:12px;line-height:1.4;margin:5px 0 0;color:#959eae}.toggle{position:relative;width:49px;height:29px;flex:none}.toggle input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer}.toggle span{position:absolute;inset:0;background:#525866;border-radius:99px;transition:background .2s;pointer-events:none}.toggle span:after{content:"";position:absolute;width:23px;height:23px;top:3px;left:3px;background:white;border-radius:50%;transition:transform .2s}.toggle input:checked+span{background:#688fe6}.toggle input:checked+span:after{transform:translateX(20px)}.setting-select{background:#333945;color:#fff;border:1px solid #525967;border-radius:12px;padding:8px 10px;font-size:13px}.settings-actions{display:flex;gap:9px;margin-top:24px}.action-primary,.action-secondary{flex:1;border:0;border-radius:14px;padding:14px 10px;font-weight:680;font-size:13px;color:white}.action-primary{background:#638eeb}.action-secondary{background:#343b48}.small-status{font-size:11px;color:#95a0af;text-align:center;margin-top:14px;line-height:1.5}.status-dot{display:inline-block;width:6px;height:6px;background:#64d6a0;border-radius:50%;margin-right:5px}.shortcuts{font-size:11px;color:#a9b1bf;margin:13px 0 0;line-height:1.65}.kbd{padding:2px 5px;border-radius:5px;border:1px solid #555e6a;color:#dae2ed}
+/* Responsive */
+@media(max-width:900px){.topbar{padding-top:calc(12px + var(--safe-top))}.bottom-area{padding-bottom:calc(10px + var(--safe-bottom))}.mode-btn{min-width:92px;border-radius:14px;padding:6px 7px 8px}.mini-preview{height:36px;line-height:36px;font-size:19px}.mode-name{font-size:11px}.mode-tray{justify-content:flex-start;width:100%;gap:7px}.tiny-hint{font-size:10px}.midnight-shell{gap:3vw;padding:3vw}.midnight-side{min-width:116px}.aurora-mark{width:60px;height:60px}.aurora-glow{width:66px;height:66px;border-width:8px}.aurora-glow:after{inset:-8px;border-width:8px}}
+@media(max-width:650px) and (orientation:portrait){.midnight-shell{flex-direction:column;gap:7vh;justify-content:center;padding:20px}.midnight-time{font-size:min(38vw,25vh)}.midnight-side{width:77%;min-width:0;align-self:auto;padding:0;flex-direction:row;align-items:center;justify-content:space-between;gap:16px}.midnight-day{font-size:clamp(23px,7vw,40px)}.midnight-full-date{margin-top:8px;font-size:11px}.midnight-secondary{text-align:right}.midnight-side-icon{width:23px;height:23px;margin-bottom:4px}.midnight-other{font-size:clamp(23px,7vw,38px)}.midnight-zone{font-size:10px;margin-top:4px}.aurora-time{font-size:min(38vw,27vh)}.aurora-mark{top:12%}.aurora-glow{top:12%;right:7%}.flip-card{width:42vw;height:54vw}.flip-card .flip-text{font-size:29vw}.flip-content{gap:24px}.solar-panel{max-width:94vw;padding:35px 16px;border-radius:35px}.solar-time{font-size:29vw}.solar-top{font-size:9px}.solar-bottom{font-size:10px}.type-wrap{width:84vw}.type-time{font-size:30vw}.type-caption{font-size:12px}.analog-face{width:84vw;height:84vw}.orbit-digital{font-size:25px}.brand{font-size:12px}.ui-button.icon-only{width:40px;min-height:40px}.ui-button.zone-button{padding:9px 10px;min-height:40px}.zone-button span{display:none}.topactions{gap:6px}}
+@media(max-height:520px) and (orientation:landscape){.topbar{min-height:65px;padding-top:8px}.bottom-area{padding-top:10px;gap:5px}.mode-tray{gap:6px}.mode-btn{min-width:96px;padding:4px 8px}.mini-preview{height:25px;line-height:25px;margin-bottom:3px;font-size:16px}.mode-name{font-size:10px}.tiny-hint{display:none}.midnight-side{padding-block:5vh}.midnight-time{font-size:min(27vw,75vh)}.aurora-mark{width:45px;height:45px;top:3%}.aurora-glow{width:50px;height:50px;top:3%}.aurora-time{font-size:min(30vw,73vh)}.flip-card{width:31vh;height:41vh}.flip-card .flip-text{font-size:24vh}.flip-content{gap:10px}.solar-panel{padding:18px 42px}.solar-top{margin-bottom:5px}.solar-bottom{margin-top:4px}.analog-face{width:67vh;height:67vh}.orbit-wrap{gap:4px}.orbit-digital{font-size:18px}.type-kicker{margin-bottom:5px}.type-rule{margin-top:5px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+body.no-motion *,body.no-motion *:before,body.no-motion *:after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+ <div class="stage" id="stage" aria-live="off">
+  <section class="scene scene-midnight active" data-scene="midnight" aria-label="Midnight" data-i18n-aria="mode_midnight">
+    <div class="midnight-shell">
+      <div class="clock-number midnight-time" aria-label="Clock" data-i18n-aria="clock"><span class="digit" data-hh>13</span><span class="colon">:</span><span class="digit" data-mm>40</span><span class="digit extra-seconds" data-ss style="display:none">:00</span></div>
+      <div class="midnight-side"><div><div class="midnight-day"><span data-week-short>FRI</span> <span data-day>23</span></div><div class="midnight-full-date" data-full-date>23 October</div></div><div class="midnight-secondary"><svg class="midnight-side-icon" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3.5 2M5 3 2 6M19 3l3 3"/></svg><div class="midnight-other" data-other-time>10:40</div><div class="midnight-zone" data-other-zone>UTC</div></div></div>
+    </div>
+  </section>
+  <section class="scene scene-aurora" data-scene="aurora" aria-label="Aurora" data-i18n-aria="mode_aurora">
+    <div class="aurora-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div class="aurora-glow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13.5 1.5 5 13h6l-1 9.5L19.5 10h-6z"/></svg></div>
+    <div class="clock-number aurora-time"><span class="digit" data-hh>13</span><span class="colon">:</span><span class="digit" data-mm>40</span><span class="digit extra-seconds" data-ss style="display:none">:00</span></div>
+    <div class="aurora-bottom" data-long-date>FRIDAY · 23 OCTOBER</div>
+  </section>
+  <section class="scene scene-flip" data-scene="flip" aria-label="Flip" data-i18n-aria="mode_flip">
+    <div class="flip-content"><div class="flip-row"><div class="flip-card"><span class="flip-text" data-hh>13</span></div><div class="flip-card"><span class="flip-text" data-mm>40</span></div></div><div class="flip-date"><span data-long-date>FRIDAY · 23 OCTOBER</span> <span style="margin:0 7px;opacity:.4">/</span><span data-zone-label>BULGARIA</span></div></div>
+  </section>
+  <section class="scene scene-solar" data-scene="solar" aria-label="Glass" data-i18n-aria="mode_solar">
+    <div class="solar-panel"><div class="solar-top"><span data-zone-label>BULGARIA</span><span data-offset>UTC+3</span></div><div class="clock-number solar-time"><span class="digit" data-hh>13</span><span class="colon">:</span><span class="digit" data-mm>40</span><span class="digit extra-seconds" data-ss style="display:none">:00</span></div><div class="solar-bottom"><span data-date-month>23 October</span><div class="solar-bar"><span id="solar-progress"></span></div><span data-week-short>FRI</span></div></div>
+  </section>
+  <section class="scene scene-type" data-scene="type" aria-label="Editorial" data-i18n-aria="mode_type">
+    <div class="type-wrap"><div class="type-kicker">CHRONO / <span data-zone-label>BULGARIA</span></div><div class="clock-number type-time"><span class="digit" data-hh>13</span><span class="colon">:</span><span class="digit" data-mm>40</span><span class="digit extra-seconds" data-ss style="display:none">:00</span></div><div class="type-rule"></div><div class="type-caption"><span data-long-date>FRIDAY · 23 OCTOBER</span><span data-offset>UTC+3</span></div></div>
+  </section>
+  <section class="scene scene-orbit" data-scene="orbit" aria-label="Analog" data-i18n-aria="mode_orbit">
+    <div class="orbit-wrap"><div class="analog-face" id="analogFace" aria-label="Analog clock" data-i18n-aria="analogClock"><div class="mark-12">12</div><div class="mark-3">3</div><div class="mark-6">6</div><div class="mark-9">9</div><div class="analog-hand hand-hour" id="handHour"></div><div class="analog-hand hand-minute" id="handMinute"></div><div class="analog-hand hand-second" id="handSecond"></div><div class="analog-center"></div></div><div class="orbit-digital"><span data-simple-time>13:40</span><small data-zone-label>БЪЛГАРИЯ</small></div></div>
+  </section>
+ </div>
+ <div class="chrome" id="chrome">
+   <header class="topbar"><div class="brand"><span class="brand-mark"></span>CHRONO <span style="opacity:.42;font-size:10px;font-weight:550;letter-spacing:.06em">STANDBY</span></div><div class="topactions"><button class="ui-button lang-button" id="langBtn" title="Switch language (L)" aria-label="Switch language" data-i18n-title="switchLang" data-i18n-aria="switchLang">EN</button>
+   <button class="ui-button zone-button" id="zoneBtn" title="Switch BG / UTC (T)" data-i18n-title="switchZone" data-i18n-aria="switchZone" aria-label="Switch BG / UTC">BG <span>UTC+3</span></button>
+   <button class="ui-button icon-only" id="fullBtn" title="Fullscreen (F)" aria-label="Fullscreen" data-i18n-title="fullscreen" data-i18n-aria="fullscreen"><svg viewBox="0 0 24 24"><path d="M8 3H4a1 1 0 0 0-1 1v4M16 3h4a1 1 0 0 1 1 1v4M21 16v4a1 1 0 0 1-1 1h-4M3 16v4a1 1 0 0 0 1 1h4"/></svg></button>
+   <button class="ui-button icon-only" id="settingsBtn" title="Settings (S)" aria-label="Settings" data-i18n-title="settingsShortcut" data-i18n-aria="settings"><svg viewBox="0 0 24 24"><path d="M12 3v3m0 12v3M4.2 4.2l2.1 2.1m11.4 11.4 2.1 2.1M3 12h3m12 0h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="4.5"/></svg></button>
+   </div></header>
+   <footer class="bottom-area"><nav class="mode-tray" id="modeTray" aria-label="Choose style" data-i18n-aria="chooseStyle">
+     <button class="mode-btn selected" data-mode="midnight" aria-pressed="true"><span class="mini-preview mini-1">13:40</span><span class="mode-name" data-i18n="mode_midnight">Midnight</span></button>
+     <button class="mode-btn" data-mode="aurora" aria-pressed="false"><span class="mini-preview mini-2">13:40</span><span class="mode-name" data-i18n="mode_aurora">Aurora</span></button>
+     <button class="mode-btn" data-mode="flip" aria-pressed="false"><span class="mini-preview mini-3">13 40</span><span class="mode-name" data-i18n="mode_flip">Flip</span></button>
+     <button class="mode-btn" data-mode="solar" aria-pressed="false"><span class="mini-preview mini-4">13:40</span><span class="mode-name" data-i18n="mode_solar">Glass</span></button>
+     <button class="mode-btn" data-mode="type" aria-pressed="false"><span class="mini-preview mini-5">13:40</span><span class="mode-name" data-i18n="mode_type">Editorial</span></button>
+     <button class="mode-btn" data-mode="orbit" aria-pressed="false"><span class="mini-preview mini-6">◷</span><span class="mode-name" data-i18n="mode_orbit">Analog</span></button>
+   </nav><div class="tiny-hint" data-i18n="hint">Tap to show/hide controls · ← → change style · T switches BG/UTC · L changes language</div></footer>
+ </div>
+ <div class="peek" aria-hidden="true"></div><div class="hidden-screen-msg" id="toast" role="status"></div>
+</div>
+<div class="settings-overlay" id="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-hidden="true">
+ <div class="settings-card">
+  <div class="settings-header"><div><h2 id="settingsTitle" data-i18n="settings">Settings</h2><p class="settings-subtitle" data-i18n="subtitle">Make the clock yours</p></div><button class="settings-close" id="closeSettings" aria-label="Close" data-i18n-aria="close">×</button></div>
+  <div class="setting-row"><div><strong data-i18n="language">Language</strong><p data-i18n="languageDesc">Use English or Bulgarian throughout the interface</p></div><select class="setting-select" id="languageSelect" aria-label="Language" data-i18n-aria="language"><option value="en">English</option><option value="bg">Български</option></select></div>
+  <div class="setting-row"><div><strong data-i18n="timezone">Time zone</strong><p data-i18n="timezoneDesc">Automatic daylight saving for Bulgaria</p></div><select class="setting-select" id="zoneSelect" aria-label="Time zone" data-i18n-aria="timezone"><option value="BG" data-i18n="zoneBG">🇧🇬 Bulgaria</option><option value="UTC">🌐 UTC</option></select></div>
+  <div class="setting-row"><div><strong data-i18n="format24">24-hour format</strong><p data-i18n="format24Desc">Turn off for 12-hour time</p></div><label class="toggle"><input type="checkbox" id="setting24" checked aria-label="24-hour format" data-i18n-aria="format24"><span></span></label></div>
+  <div class="setting-row"><div><strong data-i18n="seconds">Show seconds</strong><p data-i18n="secondsDesc">Works best with Glass, Midnight and Aurora</p></div><label class="toggle"><input type="checkbox" id="settingSeconds" aria-label="Show seconds" data-i18n-aria="seconds"><span></span></label></div>
+  <div class="setting-row"><div><strong data-i18n="motion">Smooth animations</strong><p data-i18n="motionDesc">Backgrounds, transitions and moving digits</p></div><label class="toggle"><input type="checkbox" id="settingMotion" checked aria-label="Smooth animations" data-i18n-aria="motion"><span></span></label></div>
+  <div class="setting-row"><div><strong data-i18n="autoHide">Auto-hide controls</strong><p data-i18n="autoHideDesc">Hide the menu after a few seconds</p></div><label class="toggle"><input type="checkbox" id="settingAutoHide" checked aria-label="Auto-hide controls" data-i18n-aria="autoHide"><span></span></label></div>
+  <div class="setting-row"><div><strong data-i18n="wake">Keep screen awake</strong><p data-i18n="wakeDesc">Uses Wake Lock where supported</p></div><label class="toggle"><input type="checkbox" id="settingWake" aria-label="Keep screen awake" data-i18n-aria="wake"><span></span></label></div>
+  <div class="setting-row"><div><strong data-i18n="sync">Time synchronization</strong><p id="syncDescription">Device clock. Internet verification when available.</p></div><button class="ui-button" id="syncBtn" style="font-size:12px;flex:0 0 auto" data-i18n="syncBtn">Sync</button></div>
+  <div class="setting-row"><div><strong data-i18n="dst">Next clock change in Bulgaria</strong><p id="nextDstText" data-i18n="checking">Checking…</p></div></div>
+  <div class="settings-actions"><button class="action-secondary" id="resetBtn" data-i18n="reset">Reset all</button><button class="action-primary" id="doneBtn" data-i18n="done">Done</button></div>
+  <div class="shortcuts" data-i18n="shortcuts">Keys: 1–6 styles · T BG/UTC · L language · F fullscreen · S settings · ← → next style</div>
+  <div class="small-status"><span class="status-dot"></span><span data-i18n="offline">Settings save automatically in this browser. All styles work offline; online time sync is optional.</span></div>
+ </div>
+</div>
+<script>
+(()=>{'use strict';
+const MODES=['midnight','aurora','flip','solar','type','orbit'];
+const DEFAULT={language:'en',mode:'midnight',zone:'BG',hour24:true,seconds:false,motion:true,autoHide:true,wake:false};
+const STORE_KEY='chrono-standby-v3', OLD_STORE_KEY='chrono-standby-v2';
+const $=id=>document.getElementById(id);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const I18N={
+ en:{
+  clock:'Clock',analogClock:'Analog clock',settings:'Settings',settingsShortcut:'Settings (S)',switchZone:'Switch BG / UTC (T)',switchLang:'Switch language (L)',fullscreen:'Fullscreen (F)',close:'Close',chooseStyle:'Choose clock style',
+  subtitle:'Make the clock yours',language:'Language',languageDesc:'Use English or Bulgarian throughout the interface',timezone:'Time zone',timezoneDesc:'Automatic daylight saving for Bulgaria',zoneBG:'🇧🇬 Bulgaria',
+  format24:'24-hour format',format24Desc:'Turn off for 12-hour time',seconds:'Show seconds',secondsDesc:'Works best with Glass, Midnight and Aurora',motion:'Smooth animations',motionDesc:'Backgrounds, transitions and moving digits',autoHide:'Auto-hide controls',autoHideDesc:'Hide the menu after a few seconds',wake:'Keep screen awake',wakeDesc:'Uses Wake Lock where supported',
+  sync:'Time synchronization',syncBtn:'Sync',syncing:'Checking…',dst:'Next clock change in Bulgaria',checking:'Checking…',reset:'Reset all',done:'Done',shortcuts:'Keys: 1–6 styles · T BG/UTC · L language · F fullscreen · S settings · ← → next style',offline:'Settings save automatically in this browser. All styles work offline; online time sync is optional.',
+  hint:'Tap to show/hide controls · ← → change style · T switches BG/UTC · L changes language',
+  mode_midnight:'Midnight',mode_aurora:'Aurora',mode_flip:'Flip',mode_solar:'Glass',mode_type:'Editorial',mode_orbit:'Analog',
+  country:'BULGARIA',otherBG:'BG',noDst:'No time change found in the next 380 days',dstSummer:'switch to daylight saving time',dstWinter:'switch to standard time',
+  syncIdle:'Device clock · online verification when available',syncOk:'Online verified · offset {ms} ms',syncError:'Device clock · online verification unavailable',syncSuccess:'Synchronized with an internet time server',syncFail:'Could not reach the time server. Using device time.',
+  wakeUnsupported:'Keep-awake is not supported in this browser or for this local file.',wakeDenied:'The browser did not allow the screen to stay awake.',fullscreenUnavailable:'For fullscreen, use your browser controls or Add to Home Screen.',fullscreenDenied:'The browser did not allow fullscreen.',resetDone:'All settings have been reset.',
+  week:['SUN','MON','TUE','WED','THU','FRI','SAT'], locale:'en-GB'
+ },
+ bg:{
+  clock:'Часовник',analogClock:'Аналогов часовник',settings:'Настройки',settingsShortcut:'Настройки (S)',switchZone:'Смени BG / UTC (T)',switchLang:'Смени езика (L)',fullscreen:'Цял екран (F)',close:'Затвори',chooseStyle:'Избор на стил на часовника',
+  subtitle:'Настрой часовника по твой вкус',language:'Език',languageDesc:'Променя всички надписи и дати на български или английски',timezone:'Часова зона',timezoneDesc:'Автоматично лятно/зимно време за България',zoneBG:'🇧🇬 България',
+  format24:'24-часов формат',format24Desc:'Изключи за 12-часов формат',seconds:'Показвай секундите',secondsDesc:'Най-подходящо за Glass, Midnight и Aurora',motion:'Плавни анимации',motionDesc:'Фонове, преходи и сменящи се цифри',autoHide:'Автоматично скриване на менюто',autoHideDesc:'Менюто изчезва след няколко секунди',wake:'Не изключвай екрана',wakeDesc:'Работи в браузъри с поддръжка на Wake Lock',
+  sync:'Синхронизация на часа',syncBtn:'Синхр.',syncing:'Проверка…',dst:'Следваща смяна на часа в България',checking:'Проверка…',reset:'Нулирай всичко',done:'Готово',shortcuts:'Клавиши: 1–6 стилове · T BG/UTC · L език · F цял екран · S настройки · ← → следващ стил',offline:'Настройките се запазват автоматично в браузъра. Стиловете работят офлайн; онлайн проверката е по избор.',
+  hint:'Докосни за показване/скриване на менюто · ← → сменят стила · T сменя BG/UTC · L сменя езика',
+  mode_midnight:'Полунощ',mode_aurora:'Аврора',mode_flip:'Прелистване',mode_solar:'Стъкло',mode_type:'Редакционен',mode_orbit:'Аналогов',
+  country:'БЪЛГАРИЯ',otherBG:'BG',noDst:'Не е открита смяна в следващите 380 дни',dstSummer:'преминаване към лятно време',dstWinter:'преминаване към зимно време',
+  syncIdle:'Часовник на устройството · онлайн проверка при наличен интернет',syncOk:'Онлайн проверено · отклонение {ms} ms',syncError:'Часовник на устройството · онлайн проверка недостъпна',syncSuccess:'Синхронизирано с интернет часовник',syncFail:'Няма връзка със сървъра. Използва се системният час.',
+  wakeUnsupported:'Wake Lock не се поддържа в този браузър или при локален файл.',wakeDenied:'Браузърът не разреши постоянно включен екран.',fullscreenUnavailable:'За цял екран използвай настройките на браузъра / Add to Home Screen.',fullscreenDenied:'Браузърът не разреши цял екран.',resetDone:'Всички настройки са нулирани.',
+  week:['НЕД','ПОН','ВТО','СРЯ','ЧЕТ','ПЕТ','СЪБ'],locale:'bg-BG'
+ }
+};
+function loadSettings(){let raw=null;for(const key of [STORE_KEY,OLD_STORE_KEY]){try{raw=localStorage.getItem(key)}catch(e){break}if(raw)break}if(!raw)return {};try{const val=JSON.parse(raw);return val&&typeof val==='object'&&!Array.isArray(val)?val:{}}catch(e){return {}}}
+const persisted=loadSettings();
+const state={...DEFAULT,...persisted};
+if(!['en','bg'].includes(state.language))state.language='en';
+if(!MODES.includes(state.mode))state.mode='midnight';
+if(!['BG','UTC'].includes(state.zone))state.zone='BG';
+for(const key of ['hour24','seconds','motion','autoHide','wake'])if(typeof state[key]!=='boolean')state[key]=DEFAULT[key];
+const save=()=>{try{localStorage.setItem(STORE_KEY,JSON.stringify(state))}catch(e){}};
+const text=(key)=>I18N[state.language][key]??I18N.en[key]??key;
+const locale=()=>text('locale');
+const tz=()=>state.zone==='BG'?'Europe/Sofia':'UTC';
+const fmtCache=new Map();
+function formatter(name,opts){const key=name+JSON.stringify(opts);if(!fmtCache.has(key))fmtCache.set(key,new Intl.DateTimeFormat(name,opts));return fmtCache.get(key)}
+function parts(timestamp,zone){const obj={};for(const p of formatter('en-GB',{timeZone:zone,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'short'}).formatToParts(new Date(timestamp))){if(p.type!=='literal')obj[p.type]=p.value}return obj}
+function bgOffset(timestamp){const p=parts(timestamp,'Europe/Sofia');return Math.round((Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second)-Math.floor(timestamp/1000)*1000)/60000)}
+function timeOffsetLabel(timestamp){const off=state.zone==='UTC'?0:bgOffset(timestamp);return 'UTC'+(off<0?'-':'+')+Math.abs(off/60).toString().replace('.5',':30')}
+const dateMonth=(timestamp,zone)=>formatter(locale(),{timeZone:zone,day:'numeric',month:'long'}).format(new Date(timestamp));
+const longDate=(timestamp,zone)=>{const date=new Date(timestamp);const weekday=formatter(locale(),{timeZone:zone,weekday:'long'}).format(date);return (weekday+' · '+dateMonth(timestamp,zone)).toLocaleUpperCase(locale())};
+let clockCorrection=0,syncBusy=false,syncStatus='idle',syncOffset=0,clockKey='',lastMinuteKey='',hideTimer,toastTimer,wakeLock=null;
+const now=()=>Date.now()+clockCorrection;
+function setText(selector,value,animate=false){for(const el of $$(selector)){const newValue=String(value);if(el.textContent===newValue)continue;el.textContent=newValue;if(animate&&state.motion){el.classList.remove('tick-change');void el.offsetWidth;el.classList.add('tick-change')}}}
+function timeText(p){let h=+p.hour;if(!state.hour24)h=h%12||12;return {h:String(h).padStart(2,'0'),m:p.minute,s:p.second}}
+function syncStatusText(){if(syncStatus==='ok')return text('syncOk').replace('{ms}',(syncOffset>=0?'+':'')+syncOffset);return text(syncStatus==='error'?'syncError':'syncIdle')}
+function applyTranslations(){
+ document.documentElement.lang=state.language;
+ for(const el of $$('[data-i18n]'))el.textContent=text(el.dataset.i18n);
+ for(const el of $$('[data-i18n-title]'))el.title=text(el.dataset.i18nTitle);
+ for(const el of $$('[data-i18n-aria]'))el.setAttribute('aria-label',text(el.dataset.i18nAria));
+ $('langBtn').textContent=state.language.toUpperCase();$('languageSelect').value=state.language;
+ $('syncBtn').textContent=syncBusy?text('syncing'):text('syncBtn');
+ $('syncDescription').textContent=syncStatusText();
+ $('nextDstText').textContent=nextDst();
+ lastMinuteKey='';render(true);
+}
+function render(force=false){
+ const stamp=now();const selected=parts(stamp,tz());const t=timeText(selected);
+ const other=parts(stamp,state.zone==='BG'?'UTC':'Europe/Sofia');const o=timeText(other);
+ const minuteKey=[state.zone,state.hour24,state.language,selected.year,selected.month,selected.day,t.h,t.m].join('/');
+ if(force||minuteKey!==lastMinuteKey){
+  setText('[data-hh]',t.h,!force);setText('[data-mm]',t.m,!force);
+  setText('[data-day]',parseInt(selected.day,10));
+  const weekdayIndex=new Date(Date.UTC(+selected.year,+selected.month-1,+selected.day)).getUTCDay();
+  setText('[data-week-short]',text('week')[weekdayIndex]);
+  setText('[data-full-date]',dateMonth(stamp,tz()));
+  setText('[data-date-month]',dateMonth(stamp,tz()));
+  setText('[data-long-date]',longDate(stamp,tz()));
+  setText('[data-other-time]',o.h+':'+o.m);setText('[data-other-zone]',state.zone==='BG'?'UTC':text('otherBG'));
+  setText('[data-zone-label]',state.zone==='BG'?text('country'):'UTC');
+  setText('[data-offset]',timeOffsetLabel(stamp));
+  setText('[data-simple-time]',t.h+':'+t.m);
+  $('zoneBtn').innerHTML=state.zone+' <span>'+timeOffsetLabel(stamp)+'</span>';
+  lastMinuteKey=minuteKey;
+ }
+ if(force||clockKey!==t.s){setText('[data-ss]',':'+t.s,false);clockKey=t.s}
+ const milli=(stamp%1000+1000)%1000,second=+selected.second+milli/1000,minute=+selected.minute+second/60,hour=+selected.hour%12+minute/60;
+ $('solar-progress').style.width=(second/60*100)+'%';
+ $('handSecond').style.setProperty('--second-angle',second*6+'deg');
+ $('handMinute').style.setProperty('--minute-angle',minute*6+'deg');
+ $('handHour').style.setProperty('--hour-angle',hour*30+'deg');
+ document.title=t.h+':'+t.m+' · '+state.zone+' | CHRONO';
+}
+function setMode(mode,quiet=false){if(!MODES.includes(mode))return;state.mode=mode;
+ $$('[data-scene]').forEach(x=>{x.classList.toggle('active',x.dataset.scene===mode);x.setAttribute('aria-hidden',String(x.dataset.scene!==mode))});
+ $$('[data-mode]').forEach(x=>{x.classList.toggle('selected',x.dataset.mode===mode);x.setAttribute('aria-pressed',String(x.dataset.mode===mode))});
+ save();if(!quiet)reveal();
+}
+function changeMode(delta){setMode(MODES[(MODES.indexOf(state.mode)+delta+MODES.length)%MODES.length])}
+function setZone(zone){state.zone=zone==='UTC'?'UTC':'BG';$('zoneSelect').value=state.zone;lastMinuteKey='';render(true);save();reveal()}
+function toggleZone(){setZone(state.zone==='BG'?'UTC':'BG')}
+function setLanguage(language){state.language=language==='bg'?'bg':'en';applyTranslations();save();reveal()}
+function toggleLanguage(){setLanguage(state.language==='en'?'bg':'en')}
+function showSeconds(){for(const el of $$('.extra-seconds'))el.style.display=state.seconds?'inline-block':'none';document.body.classList.toggle('has-seconds',state.seconds)}
+function apply(){document.body.classList.toggle('no-motion',!state.motion);
+ $('setting24').checked=state.hour24;$('settingSeconds').checked=state.seconds;
+ $('settingMotion').checked=state.motion;$('settingAutoHide').checked=state.autoHide;
+ $('settingWake').checked=state.wake;$('zoneSelect').value=state.zone;
+ showSeconds();setMode(state.mode,true);applyTranslations();
+ if(state.autoHide)reveal();else{clearTimeout(hideTimer);$('chrome').classList.remove('is-hidden')}
+}
+function reveal(){const chrome=$('chrome');chrome.classList.remove('is-hidden');clearTimeout(hideTimer);
+ if(state.autoHide&&!$('settingsOverlay').classList.contains('open'))hideTimer=setTimeout(()=>chrome.classList.add('is-hidden'),4700)}
+function hideChrome(){if(!state.autoHide)return;$('chrome').classList.add('is-hidden');clearTimeout(hideTimer)}
+function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),2700)}
+function openSettings(){clearTimeout(hideTimer);$('settingsOverlay').classList.add('open');$('settingsOverlay').setAttribute('aria-hidden','false');$('closeSettings').focus()}
+function closeSettings(){$('settingsOverlay').classList.remove('open');$('settingsOverlay').setAttribute('aria-hidden','true');reveal()}
+function nextDst(){let start=Date.now(),base=bgOffset(start),low=start,high=0;
+ for(let days=1;days<=380;days++){const t=start+days*86400000;if(bgOffset(t)!==base){high=t;break}low=t}
+ if(!high)return text('noDst');while(high-low>60000){const mid=Math.floor((low+high)/2);if(bgOffset(mid)===base)low=mid;else high=mid}
+ const offsetChange=bgOffset(high)-base;
+ const date=formatter(locale(),{timeZone:'Europe/Sofia',day:'numeric',month:'long',year:'numeric'}).format(new Date(high));
+ return date+' · '+text(offsetChange>0?'dstSummer':'dstWinter')+' (UTC'+(bgOffset(high)>=0?'+':'')+bgOffset(high)/60+')';
+}
+async function syncTime(silent=true){if(syncBusy)return;syncBusy=true;$('syncBtn').disabled=true;$('syncBtn').textContent=text('syncing');
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),6000);const sent=Date.now();
+ try{const response=await fetch('https://worldtimeapi.org/api/timezone/Etc/UTC',{cache:'no-store',signal:controller.signal});
+  if(!response.ok)throw new Error('Server '+response.status);const data=await response.json();
+  const server=Date.parse(data.utc_datetime||data.datetime);if(!Number.isFinite(server))throw new Error('Invalid time');
+  const received=Date.now();clockCorrection=Math.round(server+(received-sent)/2-received);
+  syncStatus='ok';syncOffset=clockCorrection;lastMinuteKey='';render(true);if(!silent)toast(text('syncSuccess'));
+ }catch(e){syncStatus='error';if(!silent)toast(text('syncFail'))}
+ finally{clearTimeout(timer);syncBusy=false;$('syncBtn').disabled=false;$('syncBtn').textContent=text('syncBtn');$('syncDescription').textContent=syncStatusText()}
+}
+async function setWake(desired,quiet=false){state.wake=!!desired;$('settingWake').checked=state.wake;save();
+ if(!desired){if(wakeLock){try{await wakeLock.release()}catch(e){}wakeLock=null}return}
+ if(wakeLock)return;
+ if(!('wakeLock'in navigator)){state.wake=false;$('settingWake').checked=false;save();if(!quiet)toast(text('wakeUnsupported'));return}
+ try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null})}
+ catch(e){state.wake=false;$('settingWake').checked=false;save();if(!quiet)toast(text('wakeDenied'))}
+}
+async function fullscreen(){try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else toast(text('fullscreenUnavailable'))}catch(e){toast(text('fullscreenDenied'))}}
+const analog=$('analogFace');for(let i=0;i<60;i++){if(i%5===0&&[0,15,30,45].includes(i))continue;const tick=document.createElement('div');tick.className='analog-tick'+(i%5===0?' major':'');const a=(i*6-90)*Math.PI/180,rad=i%5===0?41.8:43.1;tick.style.left=(50+rad*Math.cos(a))+'%';tick.style.top=(50+rad*Math.sin(a))+'%';tick.style.transform='translate(-50%,-50%) rotate('+i*6+'deg)';analog.appendChild(tick)}
+$$('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+$('langBtn').addEventListener('click',toggleLanguage);
+$('languageSelect').addEventListener('change',e=>setLanguage(e.target.value));
+$('zoneBtn').addEventListener('click',toggleZone);
+$('fullBtn').addEventListener('click',fullscreen);
+$('settingsBtn').addEventListener('click',openSettings);
+$('closeSettings').addEventListener('click',closeSettings);
+$('doneBtn').addEventListener('click',closeSettings);
+$('settingsOverlay').addEventListener('click',e=>{if(e.target===$('settingsOverlay'))closeSettings()});
+$('zoneSelect').addEventListener('change',e=>setZone(e.target.value));
+$('setting24').addEventListener('change',e=>{state.hour24=e.target.checked;lastMinuteKey='';render(true);save()});
+$('settingSeconds').addEventListener('change',e=>{state.seconds=e.target.checked;showSeconds();save()});
+$('settingMotion').addEventListener('change',e=>{state.motion=e.target.checked;document.body.classList.toggle('no-motion',!state.motion);save()});
+$('settingAutoHide').addEventListener('change',e=>{state.autoHide=e.target.checked;save();reveal()});
+$('settingWake').addEventListener('change',e=>setWake(e.target.checked));
+$('syncBtn').addEventListener('click',()=>syncTime(false));
+$('resetBtn').addEventListener('click',()=>{
+ const hadWake=!!wakeLock;Object.assign(state,DEFAULT);clockCorrection=0;syncStatus='idle';syncOffset=0;
+ if(hadWake)setWake(false,true);
+ apply();save();toast(text('resetDone'));
+});
+let moveSample=0;
+document.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const t=Date.now();if(t-moveSample>300){moveSample=t;reveal()}});
+$('stage').addEventListener('pointerup',e=>{if(e.pointerType==='touch'||e.pointerType==='pen'){if(Math.abs(touchDX)>65)return;if($('chrome').classList.contains('is-hidden'))reveal();else hideChrome()}else if(e.button===0){if($('chrome').classList.contains('is-hidden'))reveal();else hideChrome()}});
+let touchX=0,touchDX=0;
+$('stage').addEventListener('touchstart',e=>{touchX=e.touches[0].clientX;touchDX=0},{passive:true});
+$('stage').addEventListener('touchmove',e=>{touchDX=e.touches[0].clientX-touchX},{passive:true});
+$('stage').addEventListener('touchend',()=>{if(Math.abs(touchDX)>65){changeMode(touchDX<0?1:-1);touchDX=10000}},{passive:true});
+window.addEventListener('keydown',e=>{
+ if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement)return;
+ const settingOpen=$('settingsOverlay').classList.contains('open');
+ if(e.key==='Escape'){if(settingOpen)closeSettings();return}if(settingOpen)return;
+ const k=e.key.toLowerCase();
+ if(k>='1'&&k<='6'){setMode(MODES[+k-1]);return}
+ if(k==='arrowright'){e.preventDefault();changeMode(1)}if(k==='arrowleft'){e.preventDefault();changeMode(-1)}
+ if(k==='t')toggleZone();if(k==='l')toggleLanguage();if(k==='f')fullscreen();if(k==='s')openSettings();
+ if(k===' '){e.preventDefault();$('chrome').classList.contains('is-hidden')?reveal():hideChrome()}
+});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){render(true);if(state.wake&&!wakeLock)setWake(true,true)}});
+apply();save();if(state.wake)setWake(true,true);
+setInterval(()=>render(),100);
+setInterval(()=>syncTime(true),15*60*1000);
+setTimeout(()=>syncTime(true),1200);
+})();
+</script>
+</body>
+</html>
